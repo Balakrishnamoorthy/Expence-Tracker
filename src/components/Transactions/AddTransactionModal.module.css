@@ -1,0 +1,81 @@
+.error {
+  padding: 12px 16px;
+  background: var(--rose-light);
+  color: #9f1239;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  border: 1px solid #fecdd3;
+}
+
+.typeToggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 4px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.typeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  border: none;
+  border-radius: 7px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  color: var(--ink-400);
+  transition: all var(--transition);
+}
+
+.typeBtn:hover { background: var(--surface); color: var(--ink-700); }
+
+.typeBtnIncome {
+  background: var(--emerald-light) !important;
+  color: #065f46 !important;
+}
+
+.typeBtnExpense {
+  background: var(--rose-light) !important;
+  color: #9f1239 !important;
+}
+
+.categoryGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.categoryChip {
+  padding: 6px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  background: transparent;
+  color: var(--ink-600);
+  transition: all var(--transition);
+}
+
+.categoryChip:hover {
+  border-color: var(--ink-400);
+  color: var(--ink-800);
+}
+
+.categoryChipIncome {
+  background: var(--emerald-light) !important;
+  border-color: var(--emerald) !important;
+  color: #065f46 !important;
+}
+
+.categoryChipExpense {
+  background: var(--rose-light) !important;
+  border-color: var(--rose) !important;
+  color: #9f1239 !important;
+}
