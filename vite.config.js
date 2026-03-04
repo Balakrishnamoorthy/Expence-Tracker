@@ -12,4 +12,9 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    outDir: 'dist',
+    sourcemap: false,      // don't expose source in prod
+    chunkSizeWarningLimit: 600,
+  },
 });
