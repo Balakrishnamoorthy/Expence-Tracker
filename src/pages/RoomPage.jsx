@@ -115,7 +115,7 @@ export default function RoomPage() {
       const msg = encodeURIComponent(
         `📊 Expense report for *${room.name}* is ready!\n\nRoom ID: ${roomId}\nBalance: ${formatCurrency(summary.netBalance)}\n\nDownloaded via Expence-Tracker`
       );
-      window.open(`https://wa.me/?text=${msg}`, '_blank');
+      window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
 
       toast.success('Report downloaded!');
     } catch {
