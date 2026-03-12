@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import Navbar from '../components/Common/Navbar';
 import AddTransactionModal from '../components/Transactions/AddTransactionModal';
+import PaymentSettlementCard from '../components/Room/PaymentSettlementCard';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import api from '../utils/api';
@@ -319,6 +320,9 @@ export default function RoomPage() {
 
             {/* ─── SIDEBAR ─── */}
             <div className={styles.sidebar}>
+              {/* Payment Settlement Card */}
+              <PaymentSettlementCard room={room} hostName={room?.host?.fullName} />
+
               {/* Members */}
               <div className="card" style={{ padding: 20 }}>
                 <h3 className={styles.sideTitle}>Members ({room?.members?.length})</h3>
