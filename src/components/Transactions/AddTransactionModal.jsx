@@ -13,7 +13,7 @@ const CATEGORY_ICONS = {
   Healthcare: 'Heart', Education: 'BookOpen', Other: 'DollarSign',
 };
 
-export default function AddTransactionModal({ roomId, onClose, onAdded }) {
+export default function AddTransactionModal({ roomId, onClose, onAdded, roomMembers = [] }) {
   const [type, setType] = useState('expense');
   const [form, setForm] = useState({
     amount: '',
@@ -21,6 +21,8 @@ export default function AddTransactionModal({ roomId, onClose, onAdded }) {
     description: '',
     date: new Date().toISOString().split('T')[0],
   });
+  const [createEqualSplit, setCreateEqualSplit] = useState(false);
+  const [splitCreatorUpiId, setSplitCreatorUpiId] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -30,15 +32,24 @@ export default function AddTransactionModal({ roomId, onClose, onAdded }) {
     e.preventDefault();
     if (!form.amount || parseFloat(form.amount) <= 0) { setError('Enter a valid amount.'); return; }
     if (!form.category) { setError('Please select a category.'); return; }
+    if (createEqualSplit && !splitCreatorUpiId.trim()) { setError('UPI ID is required for splits.'); return; }
 
     setLoading(true);
     try {
-      const res = await api.post(`/transactions/${roomId}`, {
+      const payload = {
         ...form,
         type,
         amount: parseFloat(form.amount),
         icon: CATEGORY_ICONS[form.category] || 'DollarSign',
-      });
+      };
+      
+      // Add split config if expense and split is enabled
+      if (type === 'expense' && createEqualSplit) {
+        payload.createEqualSplit = true;
+        payload.splitCreatorUpiId = splitCreatorUpiId.trim();
+      }
+
+      const res = await api.post(`/transactions/${roomId}`, payload);
       onAdded(res.data.transaction);
       onClose();
     } catch (err) {
@@ -143,6 +154,45 @@ export default function AddTransactionModal({ roomId, onClose, onAdded }) {
                 max={new Date().toISOString().split('T')[0]}
               />
             </div>
+
+            {/* Split Option - Only for Expenses */}
+            {type === 'expense' && (
+              <div className={styles.splitOption}>
+                <label className={styles.splitCheckbox}>
+                  <input
+                    type="checkbox"
+                    checked={createEqualSplit}
+                    onChange={(e) => setCreateEqualSplit(e.target.checked)}
+                  />
+                  <span className={styles.splitLabel}>
+                    Create Equal Split
+                    {createEqualSplit && roomMembers.length > 0 && (
+                      <span className={styles.splitInfo}>
+                        ₹{(parseFloat(form.amount) / roomMembers.length || 0).toFixed(2)} per person
+                      </span>
+                    )}
+                  </span>
+                </label>
+
+                {/* UPI ID Input - Shows when split is enabled */}
+                {createEqualSplit && (
+                  <div className={styles.upiIdInput}>
+                    <label className="form-label" style={{ marginBottom: 8, marginTop: 12 }}>Your UPI ID *</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="yourname@bankname or +91XXXXXXXXXX"
+                      value={splitCreatorUpiId}
+                      onChange={e => setSplitCreatorUpiId(e.target.value)}
+                      spellCheck="false"
+                    />
+                    <p style={{ fontSize: 12, color: 'var(--ink-400)', marginTop: 6 }}>
+                      Others will use this to send you their split amount
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="modal-footer">

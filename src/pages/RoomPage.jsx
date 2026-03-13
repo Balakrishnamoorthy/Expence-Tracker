@@ -3,13 +3,15 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   ArrowLeft, Plus, FileText, Share2, Users, Copy, Check,
   TrendingUp, TrendingDown, Wallet, Trash2, RefreshCw,
-  Crown, User as UserIcon
+  Crown, User as UserIcon, MoreVertical
 } from 'lucide-react';
 import Navbar from '../components/Common/Navbar';
 import AddTransactionModal from '../components/Transactions/AddTransactionModal';
+import SplitBreakdown from '../components/Room/SplitBreakdown';
 import PaymentSettlementCard from '../components/Room/PaymentSettlementCard';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { useUndoToast } from '../hooks/useUndoToast';
 import api from '../utils/api';
 import { formatCurrency, formatDate, formatRelativeTime, getInitials } from '../utils/format';
 import styles from './RoomPage.module.css';
@@ -18,6 +20,7 @@ export default function RoomPage() {
   const { roomId } = useParams();
   const { user } = useAuth();
   const toast = useToast();
+  const { showUndoToast } = useUndoToast();
   const navigate = useNavigate();
 
   const [room, setRoom] = useState(null);
@@ -29,6 +32,7 @@ export default function RoomPage() {
   const [copied, setCopied] = useState(false);
   const [filter, setFilter] = useState('all');
   const [deletingId, setDeletingId] = useState(null);
+  const [showMenu, setShowMenu] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
@@ -92,6 +96,25 @@ export default function RoomPage() {
     }
   };
 
+  const handleMarkSplitSettled = async (txnId, userId) => {
+    try {
+      await api.patch(`/transactions/${roomId}/${txnId}/settle`, { userId });
+      // Update the transaction in the list
+      setTransactions(prev => prev.map(t => {
+        if (t._id === txnId) {
+          return {
+            ...t,
+            splits: t.splits?.map(s => s.user?._id === userId ? { ...s, settled: true } : s) || [],
+          };
+        }
+        return t;
+      }));
+      toast.success('Split marked as settled!');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Could not mark split as settled.');
+    }
+  };
+
   const handleGenerateReport = async () => {
     setGenerating(true);
     try {
@@ -131,6 +154,29 @@ export default function RoomPage() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
     toast.success('Room ID copied!');
+  };
+
+  const handleDeleteRoom = async () => {
+    setShowMenu(false);
+    
+    showUndoToast({
+      message: `Room "${room?.name}" will be deleted in 10 seconds...`,
+      onConfirm: async () => {
+        try {
+          await api.delete(`/rooms/${roomId}`);
+          toast.success('Room deleted successfully!');
+          // Redirect to dashboard after a short delay
+          setTimeout(() => navigate('/dashboard'), 500);
+        } catch (err) {
+          toast.error(err.response?.data?.message || 'Failed to delete room');
+        }
+      },
+      onUndo: async () => {
+        // No action needed, deletion is cancelled
+        setShowMenu(false);
+      },
+      duration: 10,
+    });
   };
 
   const filteredTxns = filter === 'all'
@@ -204,6 +250,60 @@ export default function RoomPage() {
               <button className="btn btn-primary" onClick={() => setShowAddTxn(true)}>
                 <Plus size={15} /> Add Transaction
               </button>
+
+              {/* Host Menu */}
+              {isHost && (
+                <div style={{ position: 'relative' }}>
+                  <button
+                    className="btn btn-outline"
+                    onClick={() => setShowMenu(!showMenu)}
+                    title="More options"
+                    style={{ padding: '10px 12px' }}
+                  >
+                    <MoreVertical size={16} />
+                  </button>
+
+                  {showMenu && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '100%',
+                        right: 0,
+                        marginTop: 4,
+                        background: 'white',
+                        border: '1px solid var(--gray-200)',
+                        borderRadius: 8,
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                        minWidth: 200,
+                        zIndex: 10,
+                      }}
+                    >
+                      <button
+                        onClick={handleDeleteRoom}
+                        style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          border: 'none',
+                          background: 'transparent',
+                          color: '#ef4444',
+                          fontSize: 14,
+                          fontWeight: 500,
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          transition: 'background 0.2s',
+                        }}
+                        onMouseEnter={e => (e.target.style.background = '#fef2f2')}
+                        onMouseLeave={e => (e.target.style.background = 'transparent')}
+                      >
+                        <Trash2 size={14} /> Delete Room
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -273,43 +373,57 @@ export default function RoomPage() {
                   {filteredTxns.map((txn, i) => {
                     const canDelete = isHost || txn.addedBy?._id === user?._id;
                     return (
-                      <div
-                        key={txn._id}
-                        className={`card ${styles.txnCard} animate-fade-in`}
-                        style={{ animationDelay: `${Math.min(i, 10) * 30}ms` }}
-                      >
-                        <div className={`${styles.txnIndicator} ${txn.type === 'income' ? styles.txnIndicatorIncome : styles.txnIndicatorExpense}`} />
-                        <div className={styles.txnIconWrap}>
-                          <div className={`${styles.txnIcon} ${txn.type === 'income' ? styles.txnIconIncome : styles.txnIconExpense}`}>
-                            {txn.type === 'income' ? <TrendingUp size={15} /> : <TrendingDown size={15} />}
+                      <div key={txn._id}>
+                        <div
+                          className={`card ${styles.txnCard} animate-fade-in`}
+                          style={{ animationDelay: `${Math.min(i, 10) * 30}ms` }}
+                        >
+                          <div className={`${styles.txnIndicator} ${txn.type === 'income' ? styles.txnIndicatorIncome : styles.txnIndicatorExpense}`} />
+                          <div className={styles.txnIconWrap}>
+                            <div className={`${styles.txnIcon} ${txn.type === 'income' ? styles.txnIconIncome : styles.txnIconExpense}`}>
+                              {txn.type === 'income' ? <TrendingUp size={15} /> : <TrendingDown size={15} />}
+                            </div>
                           </div>
-                        </div>
-                        <div className={styles.txnInfo}>
-                          <div className={styles.txnCategory}>{txn.category}</div>
-                          {txn.description && <div className={styles.txnDesc}>{txn.description}</div>}
-                          <div className={styles.txnMeta}>
-                            <span>{formatRelativeTime(txn.date)}</span>
-                            <span className={styles.metaDot} />
-                            <span>{txn.addedBy?.fullName || 'Unknown'}</span>
+                          <div className={styles.txnInfo}>
+                            <div className={styles.txnCategory}>{txn.category}</div>
+                            {txn.description && <div className={styles.txnDesc}>{txn.description}</div>}
+                            <div className={styles.txnMeta}>
+                              <span>{formatRelativeTime(txn.date)}</span>
+                              <span className={styles.metaDot} />
+                              <span>{txn.addedBy?.fullName || 'Unknown'}</span>
+                            </div>
                           </div>
-                        </div>
-                        <div className={styles.txnRight}>
-                          <div className={`${styles.txnAmount} ${txn.type === 'income' ? styles.txnAmountIncome : styles.txnAmountExpense}`}>
-                            {txn.type === 'income' ? '+' : '-'}{formatCurrency(txn.amount)}
+                          <div className={styles.txnRight}>
+                            <div className={`${styles.txnAmount} ${txn.type === 'income' ? styles.txnAmountIncome : styles.txnAmountExpense}`}>
+                              {txn.type === 'income' ? '+' : '-'}{formatCurrency(txn.amount)}
+                            </div>
+                            <span className={`badge ${txn.type === 'income' ? 'badge-income' : 'badge-expense'}`}>
+                              {txn.type}
+                            </span>
                           </div>
-                          <span className={`badge ${txn.type === 'income' ? 'badge-income' : 'badge-expense'}`}>
-                            {txn.type}
-                          </span>
+                          {canDelete && (
+                            <button
+                              className={styles.deleteTxnBtn}
+                              onClick={() => handleDelete(txn._id)}
+                              disabled={deletingId === txn._id}
+                              title="Delete"
+                            >
+                              {deletingId === txn._id ? <span className="spinner" style={{ width: 13, height: 13 }} /> : <Trash2 size={13} />}
+                            </button>
+                          )}
                         </div>
-                        {canDelete && (
-                          <button
-                            className={styles.deleteTxnBtn}
-                            onClick={() => handleDelete(txn._id)}
-                            disabled={deletingId === txn._id}
-                            title="Delete"
-                          >
-                            {deletingId === txn._id ? <span className="spinner" style={{ width: 13, height: 13 }} /> : <Trash2 size={13} />}
-                          </button>
+                        
+                        {/* Split Breakdown - Show if transaction has splits */}
+                        {txn.splits && txn.splits.length > 0 && (
+                          <SplitBreakdown
+                            splits={txn.splits}
+                            isPaid={txn.type === 'income'}
+                            onMarkSettled={(userId) => handleMarkSplitSettled(txn._id, userId)}
+                            currentUserId={user?._id}
+                            splitCreatorId={txn.addedBy?._id}
+                            splitCreatorUpiId={txn.splitCreatorUpiId}
+                            splitAmount={txn.amount}
+                          />
                         )}
                       </div>
                     );
@@ -373,6 +487,7 @@ export default function RoomPage() {
       {showAddTxn && (
         <AddTransactionModal
           roomId={roomId}
+          roomMembers={room?.members || []}
           onClose={() => setShowAddTxn(false)}
           onAdded={handleTransactionAdded}
         />

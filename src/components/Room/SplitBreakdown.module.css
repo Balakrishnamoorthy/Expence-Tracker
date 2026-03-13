@@ -1,0 +1,218 @@
+.splitContainer {
+  padding: 12px;
+  background: var(--gray-50);
+  border-radius: 8px;
+  border: 1px solid var(--gray-200);
+  margin-top: 12px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-900);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.progressBar {
+  flex: 1;
+  height: 6px;
+  background: var(--gray-200);
+  border-radius: 3px;
+  overflow: hidden;
+  min-width: 120px;
+}
+
+.progress {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #059669);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.progressText {
+  font-size: 11px;
+  color: var(--ink-600);
+  font-weight: 500;
+  min-width: 60px;
+  text-align: right;
+}
+
+.splitsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.splitItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid var(--gray-200);
+  transition: all 0.2s ease;
+}
+
+.splitItem:hover {
+  border-color: var(--gray-300);
+  background: var(--gray-50);
+}
+
+.splitLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.splitAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  font-weight: 600;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.splitInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.splitName {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-900);
+  margin: 0;
+}
+
+.splitAmount {
+  font-size: 12px;
+  color: var(--ink-500);
+  margin: 0;
+  font-weight: 600;
+}
+
+.splitRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settledBadge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: #d1fae5;
+  color: #065f46;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.settleButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  background: var(--gray-200);
+  border: 1px solid var(--gray-300);
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-700);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.settleButton:hover {
+  background: var(--gray-300);
+  border-color: var(--gray-400);
+  color: var(--ink-900);
+}
+
+.settleButton:active {
+  transform: scale(0.98);
+}
+
+.payButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  border: 1px solid #1d4ed8;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.payButton:hover {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  border-color: #1e40af;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.payButton:active {
+  transform: scale(0.98);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .splitContainer {
+    padding: 10px;
+  }
+
+  .header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .title {
+    font-size: 12px;
+  }
+
+  .progressBar {
+    min-width: 80px;
+  }
+
+  .splitItem {
+    padding: 8px;
+  }
+
+  .splitAvatar {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+  }
+
+  .settleButton {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+}

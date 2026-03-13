@@ -79,3 +79,53 @@
   border-color: var(--rose) !important;
   color: #9f1239 !important;
 }
+
+.splitOption {
+  padding: 12px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.splitCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.splitCheckbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--amber-600);
+  border-radius: 4px;
+}
+
+.splitLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-700);
+  line-height: 1.4;
+}
+
+.splitInfo {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--amber-600);
+  margin-top: 2px;
+}
+
+.upiIdInput {
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-top: 12px;
+}
+
