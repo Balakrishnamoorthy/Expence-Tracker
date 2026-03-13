@@ -33,22 +33,18 @@ export default function SplitBreakdown({
       return;
     }
 
-    const upiId = splitCreatorUpiId;
+    const upiId = splitCreatorUpiId.trim();
     const amount = split.amount;
     const transactionRef = `SPLIT-${Date.now()}`;
     const description = 'Payment for expense split';
 
-    // UPI Deep Link: upi://pay?pa={upiId}&pn={name}&am={amount}&tn={description}
-    const upiLink = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent('Expence Tracker')}&am=${amount}&tr=${encodeURIComponent(transactionRef)}&tn=${encodeURIComponent(description)}`;
+    // UPI Deep Link Format (NPCI spec)
+    // Important: Don't encode the UPI ID itself - it breaks phone numbers and UPI addresses
+    // Only encode the descriptive text parts
+    const upiLink = `upi://pay?pa=${upiId}&pn=Expence%20Tracker&am=${amount}&tr=${transactionRef}&tn=${description}`;
 
-    // Fallback to WhatsApp if UPI not supported
+    // Try to open UPI app
     window.location.href = upiLink;
-    
-    // After a delay, show fallback message
-    setTimeout(() => {
-      const fallbackMsg = encodeURIComponent(`I owe you ₹${amount.toFixed(2)} for the split expense. UPI: ${upiId}`);
-      window.open(`https://wa.me/${splitCreatorUpiId.replace(/[^0-9]/g, '')}?text=${fallbackMsg}`, '_blank');
-    }, 3000);
   };
 
   return (
