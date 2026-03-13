@@ -181,7 +181,7 @@ export default function AddTransactionModal({ roomId, onClose, onAdded, roomMemb
                     <input
                       type="text"
                       className="form-input"
-                      placeholder="yourname@bankname or +91XXXXXXXXXX"
+                      placeholder="yourname@bankname"
                       value={splitCreatorUpiId}
                       onChange={e => setSplitCreatorUpiId(e.target.value)}
                       spellCheck="false"
