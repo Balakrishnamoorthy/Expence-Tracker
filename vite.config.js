@@ -33,5 +33,6 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: false,      // don't expose source in prod
     chunkSizeWarningLimit: 600,
+    minify: 'esbuild',      // use esbuild for minification
   },
 });
