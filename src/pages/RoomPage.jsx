@@ -14,6 +14,7 @@ import { useToast } from '../context/ToastContext';
 import { useUndoToast } from '../hooks/useUndoToast';
 import api from '../utils/api';
 import { formatCurrency, formatDate, formatRelativeTime, getInitials } from '../utils/format';
+import { buildRoomInviteUrl } from '../utils/inviteFlow';
 import styles from './RoomPage.module.css';
 
 export default function RoomPage() {
@@ -472,7 +473,10 @@ export default function RoomPage() {
                   className="btn btn-outline btn-sm"
                   style={{ width: '100%', marginTop: 10, justifyContent: 'center' }}
                   onClick={() => {
-                    const msg = encodeURIComponent(`Join my expense room on Expence-Tracker!\nRoom ID: ${room?.roomId}`);
+                    const inviteUrl = buildRoomInviteUrl(room?.roomId);
+                    const msg = encodeURIComponent(
+                      `Join my expense room on Expence-Tracker!\n${inviteUrl}`
+                    );
                     window.open(`https://wa.me/?text=${msg}`, '_blank');
                   }}
                 >

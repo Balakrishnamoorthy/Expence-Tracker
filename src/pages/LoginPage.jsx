@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Phone, Calendar, Wallet, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { getPendingRoomInvite, clearPendingRoomInvite } from '../utils/inviteFlow';
 import styles from './AuthPage.module.css';
 
 export default function LoginPage() {
@@ -29,7 +30,13 @@ export default function LoginPage() {
     try {
       await login(form.phone, form.dateOfBirth);
       toast.success('Welcome back! 👋');
-      navigate('/dashboard');
+      const pendingRoomId = getPendingRoomInvite();
+      if (pendingRoomId) {
+        clearPendingRoomInvite();
+        navigate(`/join/${pendingRoomId}`, { replace: true });
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please try again.');
     } finally {

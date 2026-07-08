@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import api from '../utils/api';
 import { formatCurrency, formatDate, getInitials } from '../utils/format';
+import { getPendingRoomInvite, clearPendingRoomInvite } from '../utils/inviteFlow';
 import styles from './DashboardPage.module.css';
 
 export default function DashboardPage() {
@@ -32,6 +33,14 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => { fetchRooms(); }, [fetchRooms]);
+
+  useEffect(() => {
+    const pendingRoomId = getPendingRoomInvite();
+    if (pendingRoomId && user) {
+      clearPendingRoomInvite();
+      navigate(`/join/${pendingRoomId}`, { replace: true });
+    }
+  }, [navigate, user]);
 
   // Auto-refresh every 30s
   useEffect(() => {
